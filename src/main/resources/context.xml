@@ -1,0 +1,35 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:int="http://www.springframework.org/schema/integration"
+	xmlns:int-http="http://www.springframework.org/schema/integration/http"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/integration
+        http://www.springframework.org/schema/integration/spring-integration.xsd
+        http://www.springframework.org/schema/integration/http
+        http://www.springframework.org/schema/integration/http/spring-integration-http.xsd">
+
+	<int:gateway service-interface="ro.oss.thirdparty.PippoGateway" />
+
+	<int:channel id="inputDistribution" />
+	<int:channel id="gatherChannel" />
+	<int:channel id="distribution1Channel" />
+	<int:channel id="distribution2Channel" />
+	<int:channel id="distribution3Channel" />
+	<int:channel id="output" />
+	
+	<int:scatter-gather input-channel="inputDistribution"
+		gather-channel="gatherChannel">
+		<int:scatterer apply-sequence="true">
+			<int:recipient channel="distribution1Channel" />
+			<int:recipient channel="distribution2Channel" />
+<!-- 			<int:recipient channel="distribution3Channel" /> -->
+		</int:scatterer>
+	</int:scatter-gather>
+
+	<int-http:outbound-gateway request-channel="distribution1Channel"
+		url="http://localhost:8338/one" http-method="GET" expected-response-type="java.lang.String" />
+	<int-http:outbound-gateway request-channel="distribution2Channel"
+		url="http://localhost:8338/two" http-method="GET" expected-response-type="java.lang.String" />
+<!-- 	<int-http:outbound-gateway request-channel="distribution3Channel" -->
+<!-- 		url="http://localhost:8338/three" http-method="GET" expected-response-type="java.lang.String" /> -->
+</beans>
